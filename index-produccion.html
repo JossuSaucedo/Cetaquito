@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cetaquito IA 🦈 — CETAC 09</title>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue-deep:   #0a1628;
+    --blue-mid:    #0d2240;
+    --blue-light:  #0e4a8a;
+    --cyan:        #00c8e0;
+    --cyan-glow:   #00c8e066;
+    --green:       #00e6a0;
+    --white:       #e8f4ff;
+    --gray:        #5a7a9a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--blue-deep);
+    color: var(--white);
+    min-height: 100vh;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* === OCEAN BACKGROUND === */
+  .ocean-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--cyan-glow), transparent 70%);
+    animation: float linear infinite;
+    opacity: 0;
+  }
+  @keyframes float {
+    0%   { transform: translateY(100vh) scale(0.5); opacity: 0; }
+    10%  { opacity: 0.4; }
+    90%  { opacity: 0.2; }
+    100% { transform: translateY(-20vh) scale(1.2); opacity: 0; }
+  }
+  .wave-line {
+    position: absolute;
+    width: 200%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--cyan-glow), transparent);
+    animation: wave-move linear infinite;
+  }
+  @keyframes wave-move {
+    from { transform: translateX(-50%); }
+    to   { transform: translateX(0%); }
+  }
+
+  /* === HEADER === */
+  header {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 700px;
+    padding: 32px 24px 0;
+    text-align: center;
+  }
+  .school-tag {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--cyan);
+    opacity: 0.8;
+    margin-bottom: 8px;
+  }
+  .shark-wrap {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 4px;
+  }
+  .shark-icon {
+    font-size: 72px;
+    display: block;
+    filter: drop-shadow(0 0 20px var(--cyan));
+    animation: shark-bob 3s ease-in-out infinite;
+  }
+  @keyframes shark-bob {
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    50%       { transform: translateY(-8px) rotate(2deg); }
+  }
+  .ping-ring {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90px; height: 90px;
+    border-radius: 50%;
+    border: 2px solid var(--cyan);
+    opacity: 0;
+    animation: ping 2.5s ease-out infinite;
+  }
+  .ping-ring:nth-child(2) { animation-delay: 0.8s; }
+  @keyframes ping {
+    0%   { transform: translate(-50%,-50%) scale(0.6); opacity: 0.6; }
+    100% { transform: translate(-50%,-50%) scale(2);   opacity: 0; }
+  }
+  h1 {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 38px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--white) 0%, var(--cyan) 60%, var(--green) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+  .tagline {
+    font-size: 13px;
+    color: var(--gray);
+    margin-top: 6px;
+    letter-spacing: 1px;
+  }
+
+  /* === QUICK TOPICS === */
+  .topics {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    padding: 20px 24px 0;
+    max-width: 700px;
+    width: 100%;
+  }
+  .topic-btn {
+    background: rgba(0,200,224,0.08);
+    border: 1px solid rgba(0,200,224,0.25);
+    color: var(--cyan);
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .topic-btn:hover {
+    background: rgba(0,200,224,0.2);
+    border-color: var(--cyan);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(0,200,224,0.2);
+  }
+
+  /* === CHAT BOX === */
+  .chat-container {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 700px;
+    padding: 16px 24px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  #chat-log {
+    flex: 1;
+    min-height: 280px;
+    max-height: 45vh;
+    overflow-y: auto;
+    padding: 16px;
+    background: rgba(13, 34, 64, 0.7);
+    border: 1px solid rgba(0,200,224,0.15);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scroll-behavior: smooth;
+  }
+  #chat-log::-webkit-scrollbar { width: 4px; }
+  #chat-log::-webkit-scrollbar-track { background: transparent; }
+  #chat-log::-webkit-scrollbar-thumb { background: var(--blue-light); border-radius: 4px; }
+
+  .msg {
+    display: flex;
+    gap: 10px;
+    animation: msg-in 0.3s ease-out;
+  }
+  @keyframes msg-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .msg.user { flex-direction: row-reverse; }
+  .msg-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .msg.bot .msg-avatar  { background: rgba(0,200,224,0.15); border: 1px solid rgba(0,200,224,0.3); }
+  .msg.user .msg-avatar { background: rgba(0,230,160,0.15); border: 1px solid rgba(0,230,160,0.3); }
+  .msg-bubble {
+    max-width: 80%;
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .msg.bot .msg-bubble {
+    background: rgba(0,200,224,0.08);
+    border: 1px solid rgba(0,200,224,0.2);
+    border-top-left-radius: 4px;
+    color: var(--white);
+  }
+  .msg.user .msg-bubble {
+    background: rgba(0,230,160,0.1);
+    border: 1px solid rgba(0,230,160,0.2);
+    border-top-right-radius: 4px;
+    color: var(--white);
+    text-align: right;
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 8px;
+    opacity: 0.4;
+  }
+  .empty-state span { font-size: 36px; }
+  .empty-state p { font-size: 13px; color: var(--gray); }
+
+  /* === TYPING INDICATOR === */
+  .typing-dots {
+    display: flex;
+    gap: 4px;
+    padding: 4px 0;
+  }
+  .typing-dots span {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--cyan);
+    animation: dot-bounce 1s ease-in-out infinite;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.30s; }
+  @keyframes dot-bounce {
+    0%, 100% { transform: translateY(0); opacity: 0.4; }
+    50%       { transform: translateY(-5px); opacity: 1; }
+  }
+
+  /* === CONTROLS === */
+  .controls {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 700px;
+    padding: 0 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .text-row {
+    display: flex;
+    width: 100%;
+    gap: 8px;
+  }
+  #text-input {
+    flex: 1;
+    background: rgba(13,34,64,0.8);
+    border: 1px solid rgba(0,200,224,0.25);
+    border-radius: 12px;
+    color: var(--white);
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    padding: 12px 16px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  #text-input:focus { border-color: var(--cyan); }
+  #text-input::placeholder { color: var(--gray); }
+
+  #send-btn {
+    background: var(--cyan);
+    color: var(--blue-deep);
+    border: none;
+    border-radius: 12px;
+    width: 46px; height: 46px;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  #send-btn:hover { transform: scale(1.08); box-shadow: 0 0 20px var(--cyan-glow); }
+
+  /* === MIC BUTTON === */
+  #mic-btn {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    font-size: 28px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    transition: all 0.2s;
+    background: linear-gradient(135deg, var(--blue-light), #005fa3);
+    box-shadow: 0 0 0 0 var(--cyan-glow), 0 4px 20px rgba(0,0,0,0.4);
+  }
+  #mic-btn:hover { transform: scale(1.06); }
+  #mic-btn.listening {
+    background: linear-gradient(135deg, #c00, #ff4444);
+    animation: mic-pulse 1s ease-in-out infinite;
+  }
+  @keyframes mic-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,60,60,0.5), 0 4px 20px rgba(0,0,0,0.4); }
+    50%       { box-shadow: 0 0 0 18px rgba(255,60,60,0), 0 4px 20px rgba(0,0,0,0.4); }
+  }
+
+  .mic-label {
+    font-size: 11px;
+    color: var(--gray);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* === STATUS BAR === */
+  #status {
+    font-size: 12px;
+    color: var(--cyan);
+    letter-spacing: 1px;
+    min-height: 18px;
+    text-align: center;
+    opacity: 0.8;
+  }
+
+  /* === SPEAKING WAVE === */
+  .speak-wave {
+    display: none;
+    gap: 3px;
+    align-items: flex-end;
+    height: 20px;
+  }
+  .speak-wave.active { display: flex; }
+  .speak-wave span {
+    width: 3px;
+    background: var(--green);
+    border-radius: 2px;
+    animation: speak-bar 0.6s ease-in-out infinite;
+  }
+  .speak-wave span:nth-child(1) { height: 8px;  animation-delay: 0.0s; }
+  .speak-wave span:nth-child(2) { height: 16px; animation-delay: 0.1s; }
+  .speak-wave span:nth-child(3) { height: 12px; animation-delay: 0.2s; }
+  .speak-wave span:nth-child(4) { height: 18px; animation-delay: 0.15s; }
+  .speak-wave span:nth-child(5) { height: 10px; animation-delay: 0.05s; }
+  @keyframes speak-bar {
+    0%, 100% { transform: scaleY(0.4); opacity: 0.5; }
+    50%       { transform: scaleY(1);   opacity: 1; }
+  }
+
+  footer {
+    position: relative;
+    z-index: 10;
+    font-size: 11px;
+    color: var(--gray);
+    padding-bottom: 16px;
+    opacity: 0.6;
+    letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Ocean background -->
+<div class="ocean-bg" id="ocean"></div>
+
+<!-- Header -->
+<header>
+  <div class="school-tag">CETAC 09 · Pátzcuaro, Michoacán</div>
+  <div class="shark-wrap">
+    <div class="ping-ring"></div>
+    <div class="ping-ring"></div>
+    <span class="shark-icon">🦈</span>
+  </div>
+  <h1>Cetaquito IA</h1>
+  <p class="tagline">Tu asistente del Centro de Estudios Tecnológicos en Aguas Continentales</p>
+</header>
+
+<!-- Quick topics -->
+<div class="topics">
+  <button class="topic-btn" onclick="askTopic('¿Qué carreras ofrece el CETAC?')">📚 Carreras</button>
+  <button class="topic-btn" onclick="askTopic('¿Qué talleres y clubes hay?')">🎭 Clubes</button>
+  <button class="topic-btn" onclick="askTopic('¿Dónde está ubicado el CETAC?')">📍 Ubicación</button>
+  <button class="topic-btn" onclick="askTopic('¿Cuáles son los requisitos y fechas de inscripción?')">📋 Inscripciones</button>
+  <button class="topic-btn" onclick="askTopic('¿Cómo es la carrera de Programación?')">💻 Programación</button>
+  <button class="topic-btn" onclick="askTopic('¿El CETAC hace actividades de medio ambiente?')">♻️ Eco-escuela</button>
+  <button class="topic-btn" onclick="askTopic('¿Qué consejos le darías a un alumno nuevo?')">💡 Tips</button>
+</div>
+
+<!-- Chat -->
+<div class="chat-container">
+  <div id="chat-log">
+    <div class="empty-state" id="empty-state">
+      <span>🦈</span>
+      <p>¡Hola! Toca el micrófono o escribe para comenzar</p>
+    </div>
+  </div>
+</div>
+
+<!-- Controls -->
+<div class="controls">
+  <div id="status">— listo para ayudarte —</div>
+
+  <div style="display:flex;align-items:center;gap:16px;">
+    <div class="speak-wave" id="speak-wave">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <div class="text-row">
+    <input type="text" id="text-input" placeholder="Escribe tu pregunta..." autocomplete="off">
+    <button id="send-btn" onclick="sendText()">➤</button>
+  </div>
+
+  <button id="mic-btn" onclick="toggleMic()">🎤</button>
+  <div class="mic-label" id="mic-label">Hablar</div>
+</div>
+
+<footer>CETAC 09 · Tzentzenguaro, Pátzcuaro · Michoacán</footer>
+
+<script>
+// ============================================================
+//  OCEAN BACKGROUND GENERATOR
+// ============================================================
+const ocean = document.getElementById('ocean');
+for (let i = 0; i < 18; i++) {
+  const b = document.createElement('div');
+  b.className = 'bubble';
+  const size = 30 + Math.random() * 100;
+  b.style.cssText = `
+    width:${size}px; height:${size}px;
+    left:${Math.random()*100}%;
+    animation-duration:${8+Math.random()*12}s;
+    animation-delay:${Math.random()*10}s;
+  `;
+  ocean.appendChild(b);
+}
+for (let i = 0; i < 4; i++) {
+  const w = document.createElement('div');
+  w.className = 'wave-line';
+  w.style.cssText = `top:${20+i*20}%;animation-duration:${12+i*4}s;opacity:${0.3-i*0.05};`;
+  ocean.appendChild(w);
+}
+
+// ============================================================
+//  STATE
+// ============================================================
+let conversationHistory = [];
+let isListening = false;
+let isSpeaking = false;
+let recognition = null;
+
+// ============================================================
+//  SPEECH RECOGNITION
+// ============================================================
+const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (SpeechRec) {
+  recognition = new SpeechRec();
+  recognition.lang = 'es-MX';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+  recognition.onresult = (e) => {
+    const transcript = e.results[0][0].transcript;
+    stopListening();
+    sendMessage(transcript);
+  };
+  recognition.onerror = () => {
+    stopListening();
+    setStatus('No te escuché bien, intenta de nuevo 🎤');
+  };
+  recognition.onend = () => { if (isListening) stopListening(); };
+} else {
+  document.getElementById('mic-btn').style.opacity = '0.3';
+}
+
+// ============================================================
+//  MIC TOGGLE
+// ============================================================
+function toggleMic() {
+  if (!recognition) return;
+  if (isSpeaking) { speechSynthesis.cancel(); isSpeaking = false; }
+  isListening ? stopListening() : startListening();
+}
+function startListening() {
+  isListening = true;
+  recognition.start();
+  document.getElementById('mic-btn').classList.add('listening');
+  document.getElementById('mic-btn').textContent = '🛑';
+  document.getElementById('mic-label').textContent = 'Escuchando...';
+  setStatus('🎤 Te estoy escuchando...');
+}
+function stopListening() {
+  isListening = false;
+  try { recognition.stop(); } catch(e) {}
+  document.getElementById('mic-btn').classList.remove('listening');
+  document.getElementById('mic-btn').textContent = '🎤';
+  document.getElementById('mic-label').textContent = 'Hablar';
+  setStatus('— listo para ayudarte —');
+}
+
+// ============================================================
+//  TEXT INPUT
+// ============================================================
+document.getElementById('text-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') sendText();
+});
+function sendText() {
+  const input = document.getElementById('text-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  sendMessage(text);
+}
+function askTopic(text) { sendMessage(text); }
+
+// ============================================================
+//  CORE: SEND → /api/chat → SPEAK
+// ============================================================
+async function sendMessage(userText) {
+  if (!userText.trim()) return;
+  document.getElementById('empty-state')?.remove();
+  appendMessage('user', userText);
+  conversationHistory.push({ role: 'user', content: userText });
+  const typingId = showTyping();
+  setStatus('💭 Pensando...');
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: conversationHistory })
+    });
+    const data = await response.json();
+    removeTyping(typingId);
+    if (!response.ok) throw new Error(data.error || 'Error de API');
+    const reply = data.reply;
+    conversationHistory.push({ role: 'assistant', content: reply });
+    appendMessage('bot', reply);
+    setStatus('— listo para ayudarte —');
+    speak(reply);
+  } catch (err) {
+    removeTyping(typingId);
+    appendMessage('bot', 'Ups, algo falló. Intenta de nuevo 🦈');
+    setStatus('Error de conexión');
+    console.error(err);
+  }
+}
+
+// ============================================================
+//  CHAT UI HELPERS
+// ============================================================
+function appendMessage(role, text) {
+  const log = document.getElementById('chat-log');
+  const msg = document.createElement('div');
+  msg.className = `msg ${role}`;
+  msg.innerHTML = `
+    <div class="msg-avatar">${role === 'bot' ? '🦈' : '👤'}</div>
+    <div class="msg-bubble">${escapeHtml(text)}</div>
+  `;
+  log.appendChild(msg);
+  log.scrollTop = log.scrollHeight;
+}
+
+let typingCounter = 0;
+function showTyping() {
+  const id = 'typing-' + (++typingCounter);
+  const log = document.getElementById('chat-log');
+  const el = document.createElement('div');
+  el.className = 'msg bot';
+  el.id = id;
+  el.innerHTML = `
+    <div class="msg-avatar">🦈</div>
+    <div class="msg-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>
+  `;
+  log.appendChild(el);
+  log.scrollTop = log.scrollHeight;
+  return id;
+}
+function removeTyping(id) {
+  document.getElementById(id)?.remove();
+}
+
+function setStatus(text) {
+  document.getElementById('status').textContent = text;
+}
+
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\n/g, '<br>');
+}
+
+// ============================================================
+//  SPEECH SYNTHESIS
+// ============================================================
+function speak(text) {
+  if (!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+
+  // Strip markdown/emojis for cleaner TTS
+  const clean = text
+    .replace(/[🦈🐠💪💻💃🥁⚽🏐🤖🧩📚🎭📍💡🎤🛑]/gu, '')
+    .replace(/[*_#]/g, '')
+    .trim();
+
+  const utter = new SpeechSynthesisUtterance(clean);
+  utter.lang = 'es-MX';
+  utter.rate = 1.0;
+  utter.pitch = 1.05;
+
+  // Try to pick a Spanish voice
+  const voices = speechSynthesis.getVoices();
+  const esVoice = voices.find(v => v.lang.startsWith('es') && v.localService)
+               || voices.find(v => v.lang.startsWith('es'));
+  if (esVoice) utter.voice = esVoice;
+
+  utter.onstart = () => {
+    isSpeaking = true;
+    document.getElementById('speak-wave').classList.add('active');
+    setStatus('🔊 Hablando...');
+  };
+  utter.onend = () => {
+    isSpeaking = false;
+    document.getElementById('speak-wave').classList.remove('active');
+    setStatus('— listo para ayudarte —');
+  };
+  utter.onerror = () => {
+    isSpeaking = false;
+    document.getElementById('speak-wave').classList.remove('active');
+  };
+
+  // Delay to let voices load on first call
+  setTimeout(() => speechSynthesis.speak(utter), 100);
+}
+
+// Load voices on page ready (some browsers need this)
+if (window.speechSynthesis) {
+  speechSynthesis.getVoices();
+  speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+}
+</script>
+</body>
+</html>
